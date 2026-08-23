@@ -16,26 +16,23 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   const mapModalImg = document.getElementById('mapModalImg');
   const mapModalClose = mapModal ? mapModal.querySelector('.map-modal-close') : null;
 
-  // Manual pinch-zoom + pan scoped to just the map modal image. Kept
-  // independent of the page's viewport meta (which stays non-zoomable
-  // everywhere else) so it also works in in-app browsers like KakaoTalk's,
-  // which ignore native pinch-to-zoom regardless of viewport settings.
+  // Tap-to-zoom + drag-to-pan scoped to just the map modal image. Uses only
+  // single-touch events (never two-finger pinch), because two-finger
+  // gestures get inconsistently intercepted by OS/in-app-browser gesture
+  // recognizers (iOS Safari's accessibility zoom, KakaoTalk's in-app
+  // browser, etc.) before page JS ever sees them. Single-touch tap/drag is
+  // handled reliably everywhere.
+  const MAP_ZOOM = 2.4;
   let mapScale = 1;
   let mapTranslateX = 0;
   let mapTranslateY = 0;
-  let pinchStartDistance = 0;
-  let pinchStartScale = 1;
   let isPanning = false;
+  let panMoved = false;
   let panStartX = 0;
   let panStartY = 0;
   let panStartTranslateX = 0;
   let panStartTranslateY = 0;
 
-  function distanceBetween(touches){
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.hypot(dx, dy);
-  }
   function applyMapTransform(){
     if(mapModalImg) mapModalImg.style.transform =
       'translate(' + mapTranslateX + 'px, ' + mapTranslateY + 'px) scale(' + mapScale + ')';
@@ -62,13 +59,24 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   }
 
   if(mapModalImg){
+    mapModalImg.addEventListener('click', (e) => {
+      // Handled here instead of bubbling to the modal's close handler, so
+      // tapping the map toggles zoom instead of closing.
+      e.stopPropagation();
+      if(panMoved){ panMoved = false; return; }
+      if(mapScale > 1){
+        resetMapZoom();
+      } else {
+        mapScale = MAP_ZOOM;
+        applyMapTransform();
+      }
+    });
+
     mapModalImg.addEventListener('touchstart', (e) => {
-      if(e.touches.length === 2){
-        pinchStartDistance = distanceBetween(e.touches);
-        pinchStartScale = mapScale;
-        isPanning = false;
-      } else if(e.touches.length === 1 && mapScale > 1){
+      if(e.touches.length === 1 && mapScale > 1){
         isPanning = true;
+        panMoved = false;
+        mapModalImg.style.transition = 'none';
         panStartX = e.touches[0].clientX;
         panStartY = e.touches[0].clientY;
         panStartTranslateX = mapTranslateX;
@@ -77,29 +85,18 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     }, { passive: true });
 
     mapModalImg.addEventListener('touchmove', (e) => {
-      if(e.touches.length === 2 && pinchStartDistance > 0){
+      if(e.touches.length === 1 && isPanning){
         e.preventDefault();
-        const newDistance = distanceBetween(e.touches);
-        mapScale = Math.min(Math.max(pinchStartScale * (newDistance / pinchStartDistance), 1), 4);
-        applyMapTransform();
-      } else if(e.touches.length === 1 && isPanning){
-        e.preventDefault();
+        panMoved = true;
         mapTranslateX = panStartTranslateX + (e.touches[0].clientX - panStartX);
         mapTranslateY = panStartTranslateY + (e.touches[0].clientY - panStartY);
         applyMapTransform();
       }
     }, { passive: false });
 
-    mapModalImg.addEventListener('touchend', (e) => {
-      if(e.touches.length < 2) pinchStartDistance = 0;
-      if(e.touches.length === 0){
-        isPanning = false;
-        if(mapScale <= 1){
-          mapTranslateX = 0;
-          mapTranslateY = 0;
-          applyMapTransform();
-        }
-      }
+    mapModalImg.addEventListener('touchend', () => {
+      isPanning = false;
+      mapModalImg.style.transition = '';
     });
   }
 
