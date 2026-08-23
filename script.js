@@ -11,6 +11,13 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     el.innerHTML = '함께한 지 <b>' + Math.abs(diffDays) + '</b>일';
   }
 
+  const mapImg = document.getElementById('mapImg');
+  const mapModal = document.getElementById('mapModal');
+  if(mapImg && mapModal){
+    mapImg.addEventListener('click', () => mapModal.classList.add('open'));
+    mapModal.addEventListener('click', () => mapModal.classList.remove('open'));
+  }
+
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const num = btn.getAttribute('data-num');
