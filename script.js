@@ -115,6 +115,66 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     });
   }
 
+  // Background music: default is playing, but only while the visitor is
+  // actually on this tab/page. Autoplay-with-sound is blocked by most
+  // mobile browsers until a user gesture happens, so if the initial
+  // play() is rejected we just wait for the visitor's first tap/click
+  // anywhere on the page and start it then.
+  const bgmAudio = document.getElementById('bgmAudio');
+  const bgmToggle = document.getElementById('bgmToggle');
+
+  if(bgmAudio && bgmToggle){
+    let userPaused = false;
+    let waitingForGesture = false;
+
+    function updateBgmButton(){
+      const playing = !bgmAudio.paused;
+      bgmToggle.classList.toggle('paused', !playing);
+      bgmToggle.setAttribute('aria-pressed', String(playing));
+    }
+
+    function tryPlayBgm(){
+      const playPromise = bgmAudio.play();
+      if(playPromise && playPromise.catch){
+        playPromise.catch(() => {
+          if(waitingForGesture) return;
+          waitingForGesture = true;
+          const resume = () => {
+            waitingForGesture = false;
+            if(!userPaused) tryPlayBgm();
+          };
+          document.addEventListener('touchstart', resume, { once: true });
+          document.addEventListener('click', resume, { once: true });
+        });
+      }
+    }
+
+    bgmAudio.addEventListener('play', updateBgmButton);
+    bgmAudio.addEventListener('pause', updateBgmButton);
+
+    bgmToggle.addEventListener('click', () => {
+      if(bgmAudio.paused){
+        userPaused = false;
+        tryPlayBgm();
+      } else {
+        userPaused = true;
+        bgmAudio.pause();
+      }
+    });
+
+    // Pause when the visitor leaves this tab/page, resume when they come
+    // back (unless they had explicitly turned it off themselves).
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden){
+        bgmAudio.pause();
+      } else if(!userPaused){
+        tryPlayBgm();
+      }
+    });
+
+    tryPlayBgm();
+  }
+
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const num = btn.getAttribute('data-num');

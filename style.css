@@ -362,6 +362,27 @@
     transform-origin: center center;
     transition: transform .25s ease;
   }
+  .bgm-toggle{
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 16px);
+    left: 16px;
+    z-index: 1000;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: var(--sage-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .bgm-toggle .icon-off{ display: none; }
+  .bgm-toggle.paused .icon-on{ display: none; }
+  .bgm-toggle.paused .icon-off{ display: block; }
   .map-modal-close{
     position: fixed;
     top: 16px;
