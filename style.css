@@ -97,22 +97,25 @@
   }
   .hero-photo{
     width: 240px;
-    aspect-ratio: 3 / 4;
+    /* padding-top % instead of aspect-ratio: a <div> has no intrinsic
+       ratio the way an <img> does, and aspect-ratio isn't reliably
+       supported in every in-app WebView, so fall back to the classic
+       ratio-box technique (percentage padding resolves against width
+       in every browser). 4/3 of the 240px width. */
+    height: 0;
+    padding-top: 133.333%;
+    position: relative;
     margin: 34px auto 0;
     border-radius: 2px;
     background: #F4F1E9;
-    display:flex;
-    align-items:center;
-    justify-content:center;
     overflow: hidden;
   }
   .hero-photo .photo-bg{
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    display: block;
   }
   .hero-photo span{
     font-family: 'Jost', sans-serif;
@@ -434,25 +437,26 @@
     flex: 0 0 auto;
     scroll-snap-align: center;
     width: 240px;
-    aspect-ratio: 4 / 5;
+    /* padding-top % ratio box — see .hero-photo for why. 5/4 of the
+       240px width. */
+    height: 0;
+    padding-top: 125%;
+    position: relative;
     border-radius: 2px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
     background: var(--bg);
     overflow: hidden;
   }
   .photo-slot .photo-bg{
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    display: block;
   }
   .photo-slot.wide{
     width: 340px;
-    aspect-ratio: 3 / 2;
+    /* 2/3 of the 340px width. */
+    padding-top: 66.667%;
     margin-left: 3px;
     margin-right: 3px;
   }
