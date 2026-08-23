@@ -325,7 +325,7 @@
     display: block;
   }
   .map-note{
-    margin-top: 12px;
+    margin-top: 10px;
     font-size: 11.5px;
     letter-spacing: 0.03em;
     color: var(--ink-soft);
