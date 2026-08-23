@@ -13,6 +13,10 @@
     font-family: 'Noto Sans KR', sans-serif;
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
+    /* Block pinch/double-tap zoom on iOS Safari, which ignores the
+       viewport meta's user-scalable=no. The map modal image opts back
+       in with its own touch-action so its manual pinch-zoom still works. */
+    touch-action: pan-x pan-y;
   }
   .page{
     max-width: 440px;
