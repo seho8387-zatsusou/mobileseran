@@ -19,8 +19,11 @@
     margin: 0 auto;
     background: var(--bg);
     min-height: 100vh;
+    min-height: 100dvh;
     position: relative;
     overflow: hidden;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   section{
     padding: 72px 32px;
