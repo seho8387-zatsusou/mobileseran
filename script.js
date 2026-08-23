@@ -62,12 +62,35 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   const diffTime = weddingDate.getTime() - now.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   const el = document.getElementById('ddayText');
-  if(diffDays > 0){
-    el.innerHTML = '<span class="dday-label">결혼식까지</span> <b>D-' + diffDays + '</b>';
-  } else if(diffDays === 0){
-    el.innerHTML = '<b>오늘</b>이 바로 그날입니다';
-  } else {
-    el.innerHTML = '함께한 지 <b>' + Math.abs(diffDays) + '</b>일';
+
+  function renderDday(n){
+    if(diffDays > 0){
+      el.innerHTML = '<span class="dday-label">결혼식까지</span> <b>D-' + n + '</b>';
+    } else if(diffDays === 0){
+      el.innerHTML = '<b>오늘</b>이 바로 그날입니다';
+    } else {
+      el.innerHTML = '함께한 지 <b>' + n + '</b>일';
+    }
+  }
+  renderDday(0);
+
+  // Counts 0 -> diffDays once the calendar section scrolls into view
+  // (triggered from the shared reveal observer below).
+  let ddayAnimated = false;
+  function animateDday(){
+    if(ddayAnimated) return;
+    ddayAnimated = true;
+    const target = Math.abs(diffDays);
+    if(target === 0){ renderDday(0); return; }
+    const duration = 900;
+    const start = performance.now();
+    function tick(t){
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      renderDday(Math.round(eased * target));
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   const mapImg = document.getElementById('mapImg');
@@ -219,7 +242,25 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     tryPlayBgm();
   }
 
+  // Ripple: a small circle expands from the tap point and fades out.
+  // Used on the copy buttons and the BGM toggle.
+  function addRipple(btn){
+    if(!btn || !window.PointerEvent) return;
+    btn.addEventListener('pointerdown', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 1.6;
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+      ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+      btn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
+  }
+
   document.querySelectorAll('.copy-btn').forEach(btn => {
+    addRipple(btn);
     btn.addEventListener('click', () => {
       const num = btn.getAttribute('data-num');
       navigator.clipboard.writeText(num).then(() => {
@@ -229,3 +270,24 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
       });
     });
   });
+  addRipple(bgmToggle);
+
+  // Scroll-triggered fade-up for sections/dividers marked .reveal (see
+  // style.css). The Calendar section also kicks off the D-day count-up
+  // the first time it comes into view.
+  const revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && revealEls.length){
+    const revealObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if(!entry.isIntersecting) return;
+        entry.target.classList.add('revealed');
+        if(entry.target.classList.contains('when')) animateDday();
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: 0.2 });
+    revealEls.forEach((elToWatch) => revealObserver.observe(elToWatch));
+  } else {
+    // No IntersectionObserver support: just show everything and count up.
+    revealEls.forEach((elToShow) => elToShow.classList.add('revealed'));
+    animateDday();
+  }
