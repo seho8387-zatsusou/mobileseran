@@ -551,7 +551,12 @@
     z-index: 2;
   }
   .photo-slot.wide{
-    width: 340px;
+    /* Fixed 340px was wider than the whole screen on narrow phones
+       (e.g. iPhone mini's 375px), so scroll-snap centered it edge to
+       edge with almost no neighboring photo peeking in on either side.
+       Cap it relative to the viewport instead so there's always some
+       peek, regardless of device width. */
+    width: min(340px, calc(100vw - 80px));
     aspect-ratio: 3 / 2;
     margin-left: 3px;
     margin-right: 3px;
