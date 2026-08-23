@@ -597,6 +597,10 @@
   .photo-slot{
     flex: 0 0 auto;
     scroll-snap-align: center;
+    /* Without this, a fast flick can carry momentum scroll straight
+       past several photos before it lands on a snap point. This forces
+       the browser to stop at every single slot, one swipe = one photo. */
+    scroll-snap-stop: always;
     width: 240px;
     aspect-ratio: 4 / 5;
     position: relative;
