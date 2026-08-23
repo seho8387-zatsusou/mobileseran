@@ -15,13 +15,6 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Transparent overlay JS adds on top of each protected image, so
-     in-app browsers' native long-press "save image" detection lands on
-     a plain div instead of the <img> itself. */
-  .img-shield{
-    position: absolute;
-    inset: 0;
-  }
   html,body{
     background: #E9E4D8;
     font-family: 'Noto Sans KR', sans-serif;
@@ -113,10 +106,12 @@
     justify-content:center;
     overflow: hidden;
   }
-  .hero-photo img{
+  .hero-photo .photo-bg{
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     display: block;
   }
   .hero-photo span{
@@ -447,10 +442,12 @@
     background: var(--bg);
     overflow: hidden;
   }
-  .photo-slot img{
+  .photo-slot .photo-bg{
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     display: block;
   }
   .photo-slot.wide{
