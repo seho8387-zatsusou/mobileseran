@@ -393,6 +393,9 @@
     margin: 0 -32px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* Explicit per-element pinch-zoom block; nested scroll containers
+       don't always inherit the html/body touch-action reliably. */
+    touch-action: pan-x pan-y;
   }
   .gallery-scroll::-webkit-scrollbar{
     display: none;

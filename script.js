@@ -1,3 +1,18 @@
+// Block native pinch-zoom / double-tap-zoom everywhere on the page,
+// including right after load and inside scrollable areas like the
+// gallery. The map's own zoom is implemented separately below via
+// single-touch tap + drag, so nothing on the page needs a real
+// multi-touch gesture — CSS touch-action alone doesn't reliably stop
+// Safari/in-app-browser pinch-zoom inside scroll containers or before
+// any prior touch has "claimed" the gesture, so cancel it at the event
+// level too.
+['gesturestart', 'gesturechange', 'gestureend'].forEach(type => {
+  document.addEventListener(type, (e) => e.preventDefault());
+});
+document.addEventListener('touchmove', (e) => {
+  if(e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
 const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   const now = new Date();
   const diffTime = weddingDate.getTime() - now.getTime();
