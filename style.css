@@ -342,7 +342,9 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
+    overflow: auto;
     cursor: pointer;
+    -webkit-overflow-scrolling: touch;
   }
   .map-modal.open{
     display: flex;
@@ -352,6 +354,12 @@
     max-height: 100%;
     border-radius: 4px;
     display: block;
+    transition: transform .25s ease;
+    cursor: zoom-in;
+  }
+  .map-modal.zoomed img{
+    transform: scale(2.4);
+    cursor: zoom-out;
   }
   .map-modal-close{
     position: fixed;

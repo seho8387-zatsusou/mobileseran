@@ -13,9 +13,22 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
 
   const mapImg = document.getElementById('mapImg');
   const mapModal = document.getElementById('mapModal');
-  if(mapImg && mapModal){
-    mapImg.addEventListener('click', () => mapModal.classList.add('open'));
-    mapModal.addEventListener('click', () => mapModal.classList.remove('open'));
+  const mapModalImg = document.getElementById('mapModalImg');
+  const mapModalClose = mapModal ? mapModal.querySelector('.map-modal-close') : null;
+  if(mapImg && mapModal && mapModalImg){
+    mapImg.addEventListener('click', () => {
+      mapModal.classList.add('open');
+    });
+    mapModalImg.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mapModal.classList.toggle('zoomed');
+    });
+    mapModalClose.addEventListener('click', () => {
+      mapModal.classList.remove('open', 'zoomed');
+    });
+    mapModal.addEventListener('click', () => {
+      mapModal.classList.remove('open', 'zoomed');
+    });
   }
 
   document.querySelectorAll('.copy-btn').forEach(btn => {
