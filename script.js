@@ -15,11 +15,25 @@ document.addEventListener('touchmove', (e) => {
 
 // Block long-press "save image" / drag-to-save on every image except the
 // map, which stays saveable on purpose (guests may want it for
-// directions). -webkit-touch-callout in CSS handles iOS Safari; Android
-// Chrome's long-press menu instead needs the contextmenu event blocked.
+// directions). -webkit-touch-callout in CSS handles iOS Safari; the
+// contextmenu block below covers Android Chrome. Neither one is enough
+// inside in-app WebView browsers (KakaoTalk, etc.) though — those show
+// their own native "save image" menu on long-press based on the raw DOM
+// element under the touch, bypassing web-level contextmenu prevention
+// entirely. A transparent overlay div on top of each image sidesteps
+// that: the long-press then lands on a plain <div>, which the WebView
+// doesn't recognize as a saveable image.
 document.querySelectorAll('img:not(#mapImg):not(#mapModalImg)').forEach((img) => {
   img.addEventListener('contextmenu', (e) => e.preventDefault());
   img.setAttribute('draggable', 'false');
+
+  const parent = img.parentElement;
+  if(parent){
+    if(getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+    const shield = document.createElement('div');
+    shield.className = 'img-shield';
+    parent.appendChild(shield);
+  }
 });
 
 const weddingDate = new Date('2026-11-14T12:00:00+09:00');

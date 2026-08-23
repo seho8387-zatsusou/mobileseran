@@ -15,6 +15,13 @@
     -webkit-user-select: none;
     user-select: none;
   }
+  /* Transparent overlay JS adds on top of each protected image, so
+     in-app browsers' native long-press "save image" detection lands on
+     a plain div instead of the <img> itself. */
+  .img-shield{
+    position: absolute;
+    inset: 0;
+  }
   html,body{
     background: #E9E4D8;
     font-family: 'Noto Sans KR', sans-serif;
