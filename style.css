@@ -40,6 +40,16 @@
     padding: 72px 32px;
     position: relative;
   }
+  .scroll-progress{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: var(--sage);
+    z-index: 1001;
+    transition: width .1s linear;
+  }
   .divider{
     width: 1px;
     height: 44px;
@@ -99,6 +109,9 @@
     .gallery-hint{ animation: none !important; }
     .cal td.mark::before{ animation: none !important; transform: translate(-50%,-50%) scale(1) !important; }
     .photo-slot{ transition: none !important; }
+    .map-modal{ transition: none !important; }
+    .bgm-pulse{ animation: none !important; opacity: 0 !important; }
+    .scroll-progress{ transition: none !important; }
   }
 
   /* Hero */
@@ -327,12 +340,21 @@
   }
   /* Pops in with a slight overshoot once the Calendar section reveals. */
   .when.revealed .cal td.mark::before{
-    animation: markPop .6s cubic-bezier(.34,1.56,.64,1) .3s both;
+    /* Pop in, then settle into a slow, faint breathing loop — the
+       second animation is listed later so it takes over the property
+       once markPop's fill-forwards window ends (they don't overlap in
+       time, so there's no fight over transform). */
+    animation: markPop .6s cubic-bezier(.34,1.56,.64,1) .3s both,
+               markBreathe 2.6s ease-in-out .9s infinite;
   }
   @keyframes markPop{
     from{ transform: translate(-50%,-50%) scale(0); }
     60%{ transform: translate(-50%,-50%) scale(1.15); }
     to{ transform: translate(-50%,-50%) scale(1); }
+  }
+  @keyframes markBreathe{
+    0%, 100%{ transform: translate(-50%,-50%) scale(1); }
+    50%{ transform: translate(-50%,-50%) scale(1.05); }
   }
   .cal td.mark span{ position:relative; z-index:1; }
 
@@ -445,7 +467,7 @@
     color: var(--ink-soft);
   }
   .map-modal{
-    display: none;
+    display: flex;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.85);
@@ -456,9 +478,20 @@
     overflow: auto;
     cursor: pointer;
     -webkit-overflow-scrolling: touch;
+    /* Fades + scales in on open, and back out on close. visibility is
+       delayed on the way out (only) so it stays interactive/visible for
+       the full fade, then actually leaves the a11y/hit-test tree once
+       hidden — and stays out of the way immediately when opening. */
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.96);
+    transition: opacity .3s ease, transform .3s ease, visibility 0s linear .3s;
   }
   .map-modal.open{
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition: opacity .3s ease, transform .3s ease, visibility 0s linear 0s;
   }
   .map-modal img{
     max-width: 100%;
@@ -490,6 +523,29 @@
     transition: transform .15s ease;
   }
   .bgm-toggle:active{ transform: scale(0.9); }
+  /* Pulse ring while BGM is playing. A separate fixed sibling element
+     (not a pseudo-element of the button), since the button itself has
+     overflow:hidden for the ripple and would clip an outward-expanding
+     ring. */
+  .bgm-pulse{
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 16px);
+    left: 16px;
+    z-index: 999;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--sage);
+    pointer-events: none;
+    opacity: 0;
+  }
+  .bgm-pulse.playing{
+    animation: bgmPulse 2.4s ease-out infinite;
+  }
+  @keyframes bgmPulse{
+    0%{ transform: scale(1); opacity: 0.55; }
+    100%{ transform: scale(1.9); opacity: 0; }
+  }
   .bgm-toggle .icon-off{ display: none; }
   .bgm-toggle.paused .icon-on{ display: none; }
   .bgm-toggle.paused .icon-off{ display: block; }

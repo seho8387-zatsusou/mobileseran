@@ -189,6 +189,7 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   // anywhere on the page and start it then.
   const bgmAudio = document.getElementById('bgmAudio');
   const bgmToggle = document.getElementById('bgmToggle');
+  const bgmPulse = document.getElementById('bgmPulse');
 
   if(bgmAudio && bgmToggle){
     let userPaused = false;
@@ -198,6 +199,7 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
       const playing = !bgmAudio.paused;
       bgmToggle.classList.toggle('paused', !playing);
       bgmToggle.setAttribute('aria-pressed', String(playing));
+      if(bgmPulse) bgmPulse.classList.toggle('playing', playing);
     }
 
     function tryPlayBgm(){
@@ -347,4 +349,24 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
       }
     }, { passive: true });
     updateHeroParallax();
+  }
+
+  // Thin progress bar across the top, filled by how far through the
+  // page the visitor has scrolled.
+  const scrollProgress = document.getElementById('scrollProgress');
+  if(scrollProgress){
+    let progressTicking = false;
+    function updateScrollProgress(){
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0;
+      scrollProgress.style.width = pct + '%';
+      progressTicking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if(!progressTicking){
+        progressTicking = true;
+        requestAnimationFrame(updateScrollProgress);
+      }
+    }, { passive: true });
+    updateScrollProgress();
   }
