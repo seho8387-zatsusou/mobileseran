@@ -110,12 +110,15 @@
     background: #F4F1E9;
     overflow: hidden;
   }
-  .hero-photo .photo-bg{
+  .photo-bg{
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    display: block;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .hero-photo span{
     font-family: 'Jost', sans-serif;
@@ -445,13 +448,6 @@
     border-radius: 2px;
     background: var(--bg);
     overflow: hidden;
-  }
-  .photo-slot .photo-bg{
-    position: absolute;
-    inset: 0;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
   }
   .photo-slot.wide{
     width: 340px;

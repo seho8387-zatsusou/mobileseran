@@ -13,19 +13,48 @@ document.addEventListener('touchmove', (e) => {
   if(e.touches.length > 1) e.preventDefault();
 }, { passive: false });
 
-// Block long-press "save image" / drag-to-save on every image except the
-// map, which stays saveable on purpose (guests may want it for
-// directions). The hero/gallery photos themselves are rendered as CSS
-// background-images (see index.html), not <img> tags, which is what
-// actually defeats in-app WebView browsers' (KakaoTalk, etc.) native
-// long-press "save image" menu — that menu is triggered by hit-testing
-// for a real <img>/similar element, so a background-image is never a
-// candidate for it in the first place. This listener is just a fallback
-// for any plain <img> that ends up on the page (contextmenu covers
-// desktop/Android Chrome; it won't help inside in-app WebViews).
-document.querySelectorAll('img:not(#mapImg):not(#mapModalImg)').forEach((img) => {
-  img.addEventListener('contextmenu', (e) => e.preventDefault());
-  img.setAttribute('draggable', 'false');
+// Block long-press "save image" on every photo except the map, which
+// stays saveable on purpose (guests may want it for directions).
+// Neither an <img> nor a CSS background-image is safe: in-app WebView
+// browsers (KakaoTalk, etc.) turned out to scan for both when deciding
+// whether a long-press target is "an image" worth offering to save.
+// The only thing left that has no discoverable image URL anywhere in
+// the DOM/CSSOM is a <canvas> painted with the picture's raw pixels, so
+// the hero/gallery photos are <canvas class="photo-bg" data-src="...">
+// elements (see index.html) that this draws into on load.
+function drawPhotoCanvas(canvas, img){
+  const fit = canvas.dataset.fit === 'contain' ? 'contain' : 'cover';
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const cw = Math.max(1, Math.round(rect.width * dpr));
+  const ch = Math.max(1, Math.round(rect.height * dpr));
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext('2d');
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  if(!iw || !ih) return;
+  const canvasRatio = cw / ch, imgRatio = iw / ih;
+  ctx.clearRect(0, 0, cw, ch);
+  if(fit === 'cover'){
+    let sw, sh, sx, sy;
+    if(imgRatio > canvasRatio){ sh = ih; sw = ih * canvasRatio; sy = 0; sx = (iw - sw) / 2; }
+    else { sw = iw; sh = iw / canvasRatio; sx = 0; sy = (ih - sh) / 2; }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+  } else {
+    let dw, dh;
+    if(imgRatio > canvasRatio){ dw = cw; dh = cw / imgRatio; }
+    else { dh = ch; dw = ch * imgRatio; }
+    ctx.drawImage(img, 0, 0, iw, ih, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+  }
+}
+
+document.querySelectorAll('canvas.photo-bg').forEach((canvas) => {
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  const src = canvas.dataset.src;
+  if(!src) return;
+  const img = new Image();
+  img.onload = () => drawPhotoCanvas(canvas, img);
+  img.src = src;
 });
 
 const weddingDate = new Date('2026-11-14T12:00:00+09:00');
