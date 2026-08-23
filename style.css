@@ -276,7 +276,7 @@
   }
   .way-list{
     max-width: 320px;
-    margin: 4px auto 28px;
+    margin: 10px auto 28px;
     text-align: left;
   }
   .way-item{
@@ -354,12 +354,6 @@
     max-height: 100%;
     border-radius: 4px;
     display: block;
-    transition: transform .25s ease;
-    cursor: zoom-in;
-  }
-  .map-modal.zoomed img{
-    transform: scale(2.4);
-    cursor: zoom-out;
   }
   .map-modal-close{
     position: fixed;

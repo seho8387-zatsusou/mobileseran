@@ -13,22 +13,25 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
 
   const mapImg = document.getElementById('mapImg');
   const mapModal = document.getElementById('mapModal');
-  const mapModalImg = document.getElementById('mapModalImg');
   const mapModalClose = mapModal ? mapModal.querySelector('.map-modal-close') : null;
-  if(mapImg && mapModal && mapModalImg){
-    mapImg.addEventListener('click', () => {
-      mapModal.classList.add('open');
-    });
-    mapModalImg.addEventListener('click', (e) => {
-      e.stopPropagation();
-      mapModal.classList.toggle('zoomed');
-    });
-    mapModalClose.addEventListener('click', () => {
-      mapModal.classList.remove('open', 'zoomed');
-    });
-    mapModal.addEventListener('click', () => {
-      mapModal.classList.remove('open', 'zoomed');
-    });
+  const viewportMeta = document.getElementById('viewportMeta');
+  const viewportFixed = viewportMeta ? viewportMeta.getAttribute('content') : '';
+  const viewportZoomable = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+
+  function openMapModal(){
+    mapModal.classList.add('open');
+    // Allow two-finger pinch zoom only while the map is open
+    if(viewportMeta) viewportMeta.setAttribute('content', viewportZoomable);
+  }
+  function closeMapModal(){
+    mapModal.classList.remove('open');
+    if(viewportMeta) viewportMeta.setAttribute('content', viewportFixed);
+  }
+
+  if(mapImg && mapModal){
+    mapImg.addEventListener('click', openMapModal);
+    if(mapModalClose) mapModalClose.addEventListener('click', closeMapModal);
+    mapModal.addEventListener('click', closeMapModal);
   }
 
   document.querySelectorAll('.copy-btn').forEach(btn => {
