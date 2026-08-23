@@ -291,3 +291,52 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     revealEls.forEach((elToShow) => elToShow.classList.add('revealed'));
     animateDday();
   }
+
+  const prefersReducedMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Gallery: whichever photo sits closest to the row's horizontal center
+  // gets a slight scale-up, like an active carousel card.
+  const galleryScroll = document.querySelector('.gallery-scroll');
+  if(galleryScroll && !prefersReducedMotion){
+    const slots = Array.from(galleryScroll.querySelectorAll('.photo-slot'));
+    let galleryTicking = false;
+    function updateActiveSlot(){
+      const center = galleryScroll.getBoundingClientRect().left + galleryScroll.clientWidth / 2;
+      let closest = null, closestDist = Infinity;
+      slots.forEach((slot) => {
+        const r = slot.getBoundingClientRect();
+        const dist = Math.abs((r.left + r.width / 2) - center);
+        if(dist < closestDist){ closestDist = dist; closest = slot; }
+      });
+      slots.forEach((slot) => slot.classList.toggle('active', slot === closest));
+      galleryTicking = false;
+    }
+    galleryScroll.addEventListener('scroll', () => {
+      if(!galleryTicking){
+        galleryTicking = true;
+        requestAnimationFrame(updateActiveSlot);
+      }
+    }, { passive: true });
+    updateActiveSlot();
+  }
+
+  // Hero photo: a very subtle parallax lag as the page scrolls, clamped
+  // to a small range so it never exposes the overscanned canvas edges
+  // (see .hero-photo .photo-bg in style.css).
+  const heroPhotoBg = document.querySelector('.hero-photo .photo-bg');
+  if(heroPhotoBg && !prefersReducedMotion){
+    let heroTicking = false;
+    function updateHeroParallax(){
+      const shift = Math.max(-10, Math.min(10, window.scrollY * 0.05));
+      heroPhotoBg.style.transform = 'translateY(' + shift + 'px)';
+      heroTicking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if(!heroTicking){
+        heroTicking = true;
+        requestAnimationFrame(updateHeroParallax);
+      }
+    }, { passive: true });
+    updateHeroParallax();
+  }

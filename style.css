@@ -54,6 +54,26 @@
     border-radius:50%;
     background: var(--sage);
     margin: 20px auto 0;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  /* Line "draws" itself top-to-bottom on reveal, dot fades in just after
+     it finishes. Overrides the generic .reveal fade+rise (higher
+     specificity) since a straight line growing reads better than one
+     sliding into place. */
+  .divider.reveal{
+    opacity: 1;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: none;
+  }
+  .divider.reveal.revealed{
+    transform: scaleY(1);
+    transition: transform .6s cubic-bezier(.22,.61,.36,1);
+  }
+  .divider.dot.revealed::after{
+    opacity: 1;
+    transition: opacity .4s ease .5s;
   }
 
   /* Scroll-triggered fade-up. JS adds .revealed once an element with
@@ -75,6 +95,10 @@
     }
     .reveal, .greeting-lines .line{ opacity: 1; transform: none; }
     .ripple{ display: none; }
+    .divider.dot::after{ opacity: 1; }
+    .gallery-hint{ animation: none !important; }
+    .cal td.mark::before{ animation: none !important; transform: translate(-50%,-50%) scale(1) !important; }
+    .photo-slot{ transition: none !important; }
   }
 
   /* Hero */
@@ -151,6 +175,13 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+  }
+  /* Slight overscan so the subtle scroll parallax (JS) has room to shift
+     the photo without exposing blank edges — .hero-photo has
+     overflow:hidden to crop it back down. */
+  .hero-photo .photo-bg{
+    inset: -6% 0;
+    height: 112%;
   }
   .hero-photo span{
     font-family: 'Jost', sans-serif;
@@ -288,11 +319,20 @@
     content:'';
     position:absolute;
     top:50%; left:50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%) scale(0);
     width: 30px; height: 30px;
     border-radius: 50%;
     background: var(--sage);
     z-index: 0;
+  }
+  /* Pops in with a slight overshoot once the Calendar section reveals. */
+  .when.revealed .cal td.mark::before{
+    animation: markPop .6s cubic-bezier(.34,1.56,.64,1) .3s both;
+  }
+  @keyframes markPop{
+    from{ transform: translate(-50%,-50%) scale(0); }
+    60%{ transform: translate(-50%,-50%) scale(1.15); }
+    to{ transform: translate(-50%,-50%) scale(1); }
   }
   .cal td.mark span{ position:relative; z-index:1; }
 
@@ -501,6 +541,14 @@
     border-radius: 2px;
     background: var(--bg);
     overflow: hidden;
+    transform: scale(1);
+    transition: transform .3s ease;
+  }
+  /* JS toggles this on whichever slot sits closest to the gallery's
+     horizontal center as the visitor swipes. */
+  .photo-slot.active{
+    transform: scale(1.05);
+    z-index: 2;
   }
   .photo-slot.wide{
     width: 340px;
@@ -515,10 +563,17 @@
     color: #A9A392;
   }
   .gallery-hint{
+    display: inline-block;
     font-size: 11px;
     letter-spacing: 0.15em;
     color: #A9A392;
     margin-top: 4px;
+    animation: swipeNudge 2.6s ease-in-out infinite;
+  }
+  @keyframes swipeNudge{
+    0%, 60%, 100%{ transform: translateX(0); }
+    75%{ transform: translateX(6px); }
+    90%{ transform: translateX(0); }
   }
 
   /* Account */
