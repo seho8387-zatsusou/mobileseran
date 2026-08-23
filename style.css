@@ -8,6 +8,13 @@
     --card: #FFFFFF;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
+  /* Block the long-press "save image" menu everywhere except the map,
+     which stays saveable on purpose. */
+  img:not(#mapImg):not(#mapModalImg){
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   html,body{
     background: #E9E4D8;
     font-family: 'Noto Sans KR', sans-serif;

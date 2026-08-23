@@ -13,6 +13,15 @@ document.addEventListener('touchmove', (e) => {
   if(e.touches.length > 1) e.preventDefault();
 }, { passive: false });
 
+// Block long-press "save image" / drag-to-save on every image except the
+// map, which stays saveable on purpose (guests may want it for
+// directions). -webkit-touch-callout in CSS handles iOS Safari; Android
+// Chrome's long-press menu instead needs the contextmenu event blocked.
+document.querySelectorAll('img:not(#mapImg):not(#mapModalImg)').forEach((img) => {
+  img.addEventListener('contextmenu', (e) => e.preventDefault());
+  img.setAttribute('draggable', 'false');
+});
+
 const weddingDate = new Date('2026-11-14T12:00:00+09:00');
   const now = new Date();
   const diffTime = weddingDate.getTime() - now.getTime();
