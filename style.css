@@ -354,6 +354,8 @@
     max-height: 100%;
     border-radius: 4px;
     display: block;
+    touch-action: none;
+    transform-origin: center center;
   }
   .map-modal-close{
     position: fixed;
