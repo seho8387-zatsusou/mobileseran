@@ -82,11 +82,11 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
     ddayAnimated = true;
     const target = Math.abs(diffDays);
     if(target === 0){ renderDday(0); return; }
-    const duration = 900;
+    const duration = 2200;
     const start = performance.now();
     function tick(t){
       const p = Math.min(1, (t - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
+      const eased = 1 - Math.pow(1 - p, 2);
       renderDday(Math.round(eased * target));
       if(p < 1) requestAnimationFrame(tick);
     }
@@ -261,12 +261,20 @@ const weddingDate = new Date('2026-11-14T12:00:00+09:00');
 
   document.querySelectorAll('.copy-btn').forEach(btn => {
     addRipple(btn);
+    // Capture the real label once, before any click can overwrite it —
+    // grabbing it inside the click handler instead let rapid repeat
+    // clicks capture "복사됨" as the "original" text and get stuck there.
+    const original = btn.textContent;
+    let resetTimer = null;
     btn.addEventListener('click', () => {
       const num = btn.getAttribute('data-num');
       navigator.clipboard.writeText(num).then(() => {
-        const original = btn.textContent;
         btn.textContent = '복사됨';
-        setTimeout(() => { btn.textContent = original; }, 1500);
+        if(resetTimer) clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          btn.textContent = original;
+          resetTimer = null;
+        }, 1500);
       });
     });
   });
