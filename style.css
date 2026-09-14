@@ -1,14 +1,11 @@
 :root{
-    --bg: #F0EFEB;
+    --bg: #FAF7F1;
     --ink: #33312C;
     --ink-soft: #6B685F;
     --sage: #808D69;
     --sage-deep: #5E6A4B;
-    --line: #D9D8D2;
-    --card: #FAFAF8;
-    /* Fine paper-grain noise, tiled behind the whole page. Kept very
-       faint (alpha ~0.05) so it reads as texture, not visible static. */
-    --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --line: #DAD4C4;
+    --card: #FFFFFF;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
   /* Block the long-press "save image" menu everywhere except the map,
@@ -19,8 +16,7 @@
     user-select: none;
   }
   html,body{
-    background-color: #E3E2DD;
-    background-image: var(--paper-grain);
+    background: #E9E4D8;
     font-family: 'Noto Sans KR', sans-serif;
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
@@ -32,8 +28,7 @@
   .page{
     max-width: 440px;
     margin: 0 auto;
-    background-color: var(--bg);
-    background-image: var(--paper-grain);
+    background: var(--bg);
     min-height: 100vh;
     min-height: 100dvh;
     position: relative;
@@ -112,7 +107,7 @@
     .ripple{ display: none; }
     .divider.dot::after{ opacity: 1; }
     .gallery-hint{ animation: none !important; }
-    .cal td.mark::before{ animation: none !important; transform: translate(-50%,-50%) scale(1) !important; }
+    .cal td.mark span::before{ animation: none !important; transform: scale(1) !important; }
     .photo-slot{ transition: none !important; }
     .map-modal{ transition: none !important; }
     .bgm-pulse{ animation: none !important; opacity: 0 !important; }
@@ -181,7 +176,7 @@
     position: relative;
     margin: 34px auto 0;
     border-radius: 2px;
-    background: #EAE9E4;
+    background: #F4F1E9;
     overflow: hidden;
   }
   .photo-bg{
@@ -312,6 +307,13 @@
     max-width: 300px;
     margin: 0 auto;
     border-collapse: collapse;
+    /* Without this, auto layout sizes each column by its widest cell's
+       preferred content width — and the fixed-size day-marker badge
+       (below) is wider than any plain date number, which pulled the
+       whole Saturday column wider and skewed every other column out
+       of alignment with the weekday header row. Fixed layout keeps
+       all 7 columns an even width regardless of what's inside them. */
+    table-layout: fixed;
     font-size: 13px;
   }
   .cal th{
@@ -329,22 +331,36 @@
   .cal td.sat{ color: #8FA3C4; }
   .cal td.sun{ color: #C48F8F; }
   .cal td.mark{
-    position: relative;
     color: var(--bg);
     font-weight: 500;
   }
-  .cal td.mark::before{
+  /* The circle used to be a ::before on the <td> itself, absolutely
+     centered with top/left 50% + translate(-50%,-50%). Table cells as
+     an absolute-positioning containing block are inconsistent across
+     browsers (WebKit in particular, combined with border-collapse),
+     which showed up as the circle and the "14" drifting off-center
+     from each other on real phones. Centering a plain, non-table span
+     with flexbox instead sidesteps that entirely. */
+  .cal td.mark span{
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+  }
+  .cal td.mark span::before{
     content:'';
     position:absolute;
-    top:50%; left:50%;
-    transform: translate(-50%,-50%) scale(0);
-    width: 30px; height: 30px;
+    inset: 0;
+    transform: scale(0);
     border-radius: 50%;
     background: var(--sage);
-    z-index: 0;
+    z-index: -1;
   }
   /* Pops in with a slight overshoot once the Calendar section reveals. */
-  .when.revealed .cal td.mark::before{
+  .when.revealed .cal td.mark span::before{
     /* Pop in, then settle into a slow, faint breathing loop — the
        second animation is listed later so it takes over the property
        once markPop's fill-forwards window ends (they don't overlap in
@@ -353,21 +369,20 @@
                markBreathe 2.6s ease-in-out .9s infinite;
   }
   @keyframes markPop{
-    from{ transform: translate(-50%,-50%) scale(0); }
-    60%{ transform: translate(-50%,-50%) scale(1.15); }
-    to{ transform: translate(-50%,-50%) scale(1); }
+    from{ transform: scale(0); }
+    60%{ transform: scale(1.15); }
+    to{ transform: scale(1); }
   }
   @keyframes markBreathe{
     0%, 100%{
-      transform: translate(-50%,-50%) scale(1);
+      transform: scale(1);
       box-shadow: 0 0 0 0 rgba(128,141,105,0);
     }
     50%{
-      transform: translate(-50%,-50%) scale(1.12);
+      transform: scale(1.12);
       box-shadow: 0 0 10px 2px rgba(128,141,105,0.55);
     }
   }
-  .cal td.mark span{ position:relative; z-index:1; }
 
   .dday{
     margin-top: 44px;
@@ -449,7 +464,7 @@
     aspect-ratio: 4 / 3;
     border: 1px dashed var(--line);
     border-radius: 2px;
-    background: #EAE9E4;
+    background: #F4F1E9;
     display:flex;
     align-items:center;
     justify-content:center;
