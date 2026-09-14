@@ -330,21 +330,17 @@
   .cal td.sun{ color: #C48F8F; }
   .cal td.mark{
     position: relative;
-    color: #fff;
+    color: var(--bg);
     font-weight: 500;
   }
   .cal td.mark::before{
     content:'';
     position:absolute;
-    /* Heart bounding box (the path below) isn't quite symmetric — it
-       sits a hair higher than its box's true center — so the vertical
-       anchor is nudged down slightly to read as centered on the "14". */
-    top:52%; left:50%;
+    top:50%; left:50%;
     transform: translate(-50%,-50%) scale(0);
-    width: 24px; height: 24px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
     background: var(--sage);
-    /* Classic rounded heart, authored on a 24x24 grid. */
-    clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
     z-index: 0;
   }
   /* Pops in with a slight overshoot once the Calendar section reveals. */
@@ -362,16 +358,13 @@
     to{ transform: translate(-50%,-50%) scale(1); }
   }
   @keyframes markBreathe{
-    /* clip-path clips box-shadow away (it lies outside the heart's own
-       box), so the glow uses drop-shadow instead — it follows the
-       clipped alpha shape rather than the rectangular border-box. */
     0%, 100%{
       transform: translate(-50%,-50%) scale(1);
-      filter: drop-shadow(0 0 0 rgba(128,141,105,0));
+      box-shadow: 0 0 0 0 rgba(128,141,105,0);
     }
     50%{
       transform: translate(-50%,-50%) scale(1.12);
-      filter: drop-shadow(0 0 5px rgba(128,141,105,0.55));
+      box-shadow: 0 0 10px 2px rgba(128,141,105,0.55);
     }
   }
   .cal td.mark span{ position:relative; z-index:1; }
