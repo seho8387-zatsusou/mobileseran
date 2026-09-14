@@ -1,11 +1,14 @@
 :root{
-    --bg: #FAF7F1;
+    --bg: #F0EFEB;
     --ink: #33312C;
     --ink-soft: #6B685F;
     --sage: #808D69;
     --sage-deep: #5E6A4B;
-    --line: #DAD4C4;
-    --card: #FFFFFF;
+    --line: #D9D8D2;
+    --card: #FAFAF8;
+    /* Fine paper-grain noise, tiled behind the whole page. Kept very
+       faint (alpha ~0.05) so it reads as texture, not visible static. */
+    --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
   /* Block the long-press "save image" menu everywhere except the map,
@@ -16,7 +19,8 @@
     user-select: none;
   }
   html,body{
-    background: #E9E4D8;
+    background-color: #E3E2DD;
+    background-image: var(--paper-grain);
     font-family: 'Noto Sans KR', sans-serif;
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
@@ -28,7 +32,8 @@
   .page{
     max-width: 440px;
     margin: 0 auto;
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image: var(--paper-grain);
     min-height: 100vh;
     min-height: 100dvh;
     position: relative;
@@ -176,7 +181,7 @@
     position: relative;
     margin: 34px auto 0;
     border-radius: 2px;
-    background: #F4F1E9;
+    background: #EAE9E4;
     overflow: hidden;
   }
   .photo-bg{
@@ -325,17 +330,21 @@
   .cal td.sun{ color: #C48F8F; }
   .cal td.mark{
     position: relative;
-    color: var(--bg);
+    color: #fff;
     font-weight: 500;
   }
   .cal td.mark::before{
     content:'';
     position:absolute;
-    top:50%; left:50%;
+    /* Heart bounding box (the path below) isn't quite symmetric — it
+       sits a hair higher than its box's true center — so the vertical
+       anchor is nudged down slightly to read as centered on the "14". */
+    top:52%; left:50%;
     transform: translate(-50%,-50%) scale(0);
-    width: 30px; height: 30px;
-    border-radius: 50%;
+    width: 24px; height: 24px;
     background: var(--sage);
+    /* Classic rounded heart, authored on a 24x24 grid. */
+    clip-path: path('M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
     z-index: 0;
   }
   /* Pops in with a slight overshoot once the Calendar section reveals. */
@@ -353,13 +362,16 @@
     to{ transform: translate(-50%,-50%) scale(1); }
   }
   @keyframes markBreathe{
+    /* clip-path clips box-shadow away (it lies outside the heart's own
+       box), so the glow uses drop-shadow instead — it follows the
+       clipped alpha shape rather than the rectangular border-box. */
     0%, 100%{
       transform: translate(-50%,-50%) scale(1);
-      box-shadow: 0 0 0 0 rgba(128,141,105,0);
+      filter: drop-shadow(0 0 0 rgba(128,141,105,0));
     }
     50%{
       transform: translate(-50%,-50%) scale(1.12);
-      box-shadow: 0 0 10px 2px rgba(128,141,105,0.55);
+      filter: drop-shadow(0 0 5px rgba(128,141,105,0.55));
     }
   }
   .cal td.mark span{ position:relative; z-index:1; }
@@ -415,7 +427,7 @@
   }
   .way-list{
     max-width: 320px;
-    margin: 10px auto 28px;
+    margin: 34px auto 28px;
     text-align: left;
   }
   .way-item{
@@ -444,7 +456,7 @@
     aspect-ratio: 4 / 3;
     border: 1px dashed var(--line);
     border-radius: 2px;
-    background: #F4F1E9;
+    background: #EAE9E4;
     display:flex;
     align-items:center;
     justify-content:center;
