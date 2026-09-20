@@ -673,16 +673,16 @@
   }
   .acc-group{
     max-width: 320px;
-    margin: 0 auto 30px;
+    margin: 0 auto 44px;
     text-align: left;
   }
   .acc-group:last-child{ margin-bottom: 0; }
   .acc-side{
     font-family: 'Noto Serif KR', serif;
     font-size: 13.5px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--sage-deep);
-    margin-bottom: 14px;
+    margin-bottom: 2px;
     letter-spacing: 0.05em;
   }
   .acc-row{
